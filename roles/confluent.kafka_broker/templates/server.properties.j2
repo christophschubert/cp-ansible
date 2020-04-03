@@ -1,4 +1,5 @@
 # Maintained by Ansible
+{% from './roles/confluent.common/macros/sasl.j2' import sasl_krb5, sasl_plain, sasl_scram %}
 zookeeper.connect={% for host in groups['zookeeper'] %}{% if loop.index > 1%},{% endif %}{{ host }}:{{zookeeper.properties.clientPort}}{% endfor %}
 
 log.dirs={% for logdir in kafka_broker.datadir %}{% if loop.index > 1%},{% endif %}{{ logdir }}{% endfor %}
@@ -74,20 +75,14 @@ confluent.metrics.reporter.ssl.truststore.type=pkcs12
 {% endif %}
 {% if kafka_broker_listeners.external.sasl_protocol | normalize_sasl_protocol == 'PLAIN' %}
 confluent.metrics.reporter.sasl.mechanism=PLAIN
-confluent.metrics.reporter.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
-   username="{{sasl_plain_users.admin.principal}}" password="{{sasl_plain_users.admin.password}}";
+confluent.metrics.reporter.sasl.jaas.config={{ sasl_plain(sasl_plain_users.admin.principal, sasl_plain_users.admin.password) }}
 {% endif %}
 {% if kafka_broker_listeners.external.sasl_protocol | normalize_sasl_protocol == 'GSSAPI' %}
 confluent.metrics.reporter.sasl.mechanism=GSSAPI
 confluent.metrics.reporter.sasl.kerberos.service.name={{kerberos_kafka_broker_primary}}
-confluent.metrics.reporter.sasl.jaas.config=com.sun.security.auth.module.Krb5LoginModule required \
-   useKeyTab=true \
-   storeKey=true \
-   keyTab="{{kerberos.keytab_dir}}/{{kafka_broker_kerberos_keytab_path | basename}}" \
-   principal="{{kafka_broker_kerberos_principal}}";
+confluent.metrics.reporter.sasl.jaas.config={{ sasl_krb5(kerberos.keytab_dir, kafka_broker_kerberos_keytab_path, kafka_broker_kerberos_principal) }}
 {% endif %}
 {% if kafka_broker_listeners.external.sasl_protocol | normalize_sasl_protocol == 'SCRAM-SHA-256' %}
 confluent.metrics.reporter.sasl.mechanism=SCRAM-SHA-256
-confluent.metrics.reporter.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \
-   username="{{sasl_scram_users.admin.principal}}" password="{{sasl_scram_users.admin.password}}";
+confluent.metrics.reporter.sasl.jaas.config={{ sasl_scram(sasl_scram_users.admin.principal, sasl_scram_users.admin.password) }}
 {% endif %}
