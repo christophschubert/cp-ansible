@@ -1,8 +1,13 @@
 # Maintained by Ansible
 {% from './roles/confluent.common/macros/sasl.j2' import sasl_krb5, sasl_plain, sasl_scram %}
+{% from './roles/confluent.common/macros/connectstring.j2' import join_string, connection_string, connection_string_protocol %}
+
 zookeeper.connect={% for host in groups['zookeeper'] %}{% if loop.index > 1%},{% endif %}{{ host }}:{{zookeeper.properties.clientPort}}{% endfor %}
 
+zookeeper.connect={{ connection_string(groups['zookeeper'], zookeeper.properties.clientPort) }}
+
 log.dirs={% for logdir in kafka_broker.datadir %}{% if loop.index > 1%},{% endif %}{{ logdir }}{% endfor %}
+log.dirs={{ join_string(kafka_broker.datadir) }}
 
 broker.id={{ broker_id | default(groups.kafka_broker.index(inventory_hostname) + 1)}}
 
@@ -45,6 +50,9 @@ sasl.kerberos.service.name={{kerberos_kafka_broker_primary}}
 {% if schema_registries %}
 # Schema Registry Configuration
 confluent.schema.registry.url={% for host in groups['schema_registry'] %}{% if loop.index > 1%},{% endif %}{{ schema_registry_http_protocol }}://{{ host }}:{{ schema_registry_listener_port }}{% endfor %}
+
+confluent.schema.registry.url= {{ connection_string_protocol(schema_registry_http_protocol, groups['schema_registry'], schema_registry_listener_port) }}
+
 
 {% if schema_registry_ssl_enabled|bool %}
 confluent.schema.registry.ssl.truststore.location={{kafka_broker_truststore_path}}

@@ -1,0 +1,11 @@
+{% macro join_string(values, separator=',') %}
+{% for value in values %}{% if loop.index > 1%},{% endif %}{{ value }}{% endfor %}
+{% endmacro %}
+
+{% macro connection_string(hosts, port) %}
+{% for host in hosts %}{% if loop.index > 1%},{% endif %}{{ host }}:{{port}}{% endfor %}
+{% endmacro %}
+
+{% macro connection_string_protocol(protocol, hosts, port) %}
+{% for host in hosts %}{% if loop.index > 1%},{% endif %}{{ protocol }}://{{ host }}:{{ port }}{% endfor %}
+{% endmacro %}

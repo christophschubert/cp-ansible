@@ -1,0 +1,11 @@
+{% macro ccloud_bootstrap_and_setting(bootstrap, apikey, apisecret, prefix='') %}
+{{ prefix }}bootstrap.servers={{ bootstrap }}
+{{ ccloud_security_settings(apikey, apisecret, prefix) }}
+{% endmacro %}
+
+{% macro ccloud_security_settings(apikey, apisecret, prefix='') %}
+{{ prefix }}security.protocol=SASL_SSL
+{{ prefix }}sasl.mechanism=PLAIN
+{{ prefix }}sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="{{ apikey }}" password="{{ apisecret }}";
+{{ prefix }}ssl.endpoint.identification.algorithm=https
+{% endmacro %}

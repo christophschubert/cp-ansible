@@ -40,6 +40,7 @@ class FilterModule(object):
         return kafka_protocol
 
     def get_sasl_mechanisms(self, listeners_dict, default_sasl_protocol):
+        # could be rewritten with map
         mechanisms = []
         for listener in listeners_dict:
             sasl_protocol = listeners_dict[listener].get('sasl_protocol', default_sasl_protocol)
@@ -47,6 +48,7 @@ class FilterModule(object):
         return mechanisms
 
     def get_hostnames(self, listeners_dict, default_hostname):
+        # could be rewritten with map
         hostnames = []
         for listener in listeners_dict:
             hostname = listeners_dict[listener].get('hostname', default_hostname)
@@ -58,6 +60,7 @@ class FilterModule(object):
         return extension
 
     def ssl_required(self, listeners_dict, default_ssl_enabled):
+        # could be rewritten to use any()
         ssl_required = False
         for listener in listeners_dict:
             ssl_enabled = listeners_dict[listener].get('ssl_enabled', default_ssl_enabled)
@@ -65,6 +68,9 @@ class FilterModule(object):
         return ssl_required
 
     def java_arg_build_out(self, java_arg_list):
+        # could be refactored to
+        # return ' '.join(java_arg for java_arg in java_arg_list if java_arg != '')
+        # or join with filter (might be better for Python 2)
         java_args = ''
         for value in java_arg_list:
             if value != '':

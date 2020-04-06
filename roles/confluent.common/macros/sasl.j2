@@ -11,5 +11,13 @@ org.apache.kafka.common.security.scram.ScramLoginModule required username="{{use
 {% endmacro %}
 
 {% macro sasl_plain(username, password) %}
-org.apache.kafka.common.security.scram.PlainLoginModule required username="{{username}}" password="{{password}}";
+org.apache.kafka.common.security.plain.PlainLoginModule required username="{{username}}" password="{{password}}";
+{% endmacro %}
+
+{% macro sasl_scram_user(user) %}
+{{ sasl_scram(user.principal, user.password) }}
+{% endmacro %}
+
+{% macro sasl_plain_user(user) %}
+{{ sasl_plain(user.principal, user.password) }}
 {% endmacro %}
